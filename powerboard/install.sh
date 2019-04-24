@@ -24,9 +24,9 @@ sh -c "echo i2c-dev >> /etc/modules"
 fi
 dtparam i2c_arm=on
 modprobe i2c-dev
-    
-wget -O /etc/systemd/system/powerboard_daemon.service  https://www.lijingquan.net/test/powerboard_daemon.service
-wget -O /usr/sbin/powerboard_daemon https://www.lijingquan.net/test/powerboard_daemon
+
+wget -O /etc/systemd/system/powerboard_daemon.service https://github.com/geeekpi/dockerpi/raw/master/powerboard/powerboard_daemon
+wget -O /usr/sbin/powerboard_daemon https://github.com/geeekpi/dockerpi/raw/master/powerboard/powerboard_daemon.service
 
 chmod 755 /etc/systemd/system/powerboard_daemon.service
 chmod 755 /usr/sbin/powerboard_daemon
