@@ -1,0 +1,19 @@
+[Unit]
+Description=GeeekPi Power On/Off Board
+DefaultDependencies=no
+Requires=systemd-modules-load.service
+After=systemd-modules-load.service
+Before=sysvinit.target
+ConditionPathExists=/sys/class/i2c-adapter
+Conflicts=shutdown.target
+
+[Service]
+User=root
+Group=root
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/powerboard_daemon &
+
+[Install]
+WantedBy=sysinit.target
+
