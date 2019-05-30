@@ -1,6 +1,8 @@
 # Docker Pi Modules Demo Code
 * Nightlight Hat Board For Raspberry Pi 
 * 4 Channel Relay Hat Board For Raspberry Pi
+* Powerboard 
+* SensorHub
 # Requirement
 * i2c-tools 
 * smbus2  
