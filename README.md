@@ -3,12 +3,13 @@
 * 4 Channel Relay Hat Board For Raspberry Pi
 # Requirement
 * i2c-tools 
-* smbus  
+* smbus2  
 # How To Setup
 ## Install i2c-tools 
 * sudo apt-get update 
 * sudo apt-get -y install i2c-tools
-* sudo apt-get -y install git 
+* sudo apt-get -y install git
+* pip3 install smbus2
 ## Detect Device Address
 * i2cdetect -y 1 
 ## Clone Repository
