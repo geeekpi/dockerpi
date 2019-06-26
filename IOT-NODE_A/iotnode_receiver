@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+import time
+import smbus
+import os
+import sys
+
+print("等单片机初始化完成")
+bus = smbus.SMBus(1)    
+try:
+    print('-'*60)
+    print("初始化Lora,这需要一些时间,同时保持LORA发送机打开,测试LORA模块.")
+
+    print("正在进行接收数据校验")
+    list_real = []
+    register_list = [0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x20,0x21]
+    for index in range(1, len(register_list)+1):
+        list_real.append(bus.read_byte_data(0x16,register_list[index-1]))
+    print(list_real)
+    if list_real[0] == 170:
+        os.system('sudo i2cset -y 1 0x10 0x01 0xff')
+    else:
+        os.system('sudo i2cset -y 1 0x10 0x01 0x00')
+    if list_real[1] == 85:
+        os.system('sudo i2cset -y 1 0x10 0x02 0xff')
+    else:
+        os.system('sudo i2cset -y 1 0x10 0x02 0x00')
+    if list_real[2] == 204:
+        os.system('sudo i2cset -y 1 0x10 0x03 0xff')
+    else:
+        os.system('sudo i2cset -y 1 0x10 0x03 0x00')
+    if list_real[3] == 187:
+        os.system('sudo i2cset -y 1 0x10 0x04 0xff')
+    else:
+        os.system('sudo i2cset -y 1 0x10 0x04 0x00')
+    time.sleep(1)
+    for index in range(1,len(register_list)+1):
+        list_real.append(bus.write_byte_data(0x16,register_list[index-1],0x00))
+except KeyboardInterrupt as e:
+    sys.exit()
+finally:
+    print("数据接受程序退出")
+

@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+import time
+import smbus
+import os
+import sys
+
+print("等单片机初始化完成")
+bus = smbus.SMBus(1)    
+
+try:
+    print('-'*60)
+    print("初始化lora,开始循环发送十组数据...")
+    bus.write_byte_data(0x16,0x23,0x01)
+    register = [0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x10]
+    data_list = [0xaa,0x55,0xcc,0xbb,0xaa,0xaa,0x55,0xcc,0xbb,0xaa]
+    for data in range(0,len(register)): 
+        bus.write_byte_data(0x16,register[data],data_list[data])
+        time.sleep(1)
+        print("数据%d已发送!" %data)
+except KeyboardInterrupt as e:
+    sys.exit()
+finally:
+    print("数据发送完成！")
