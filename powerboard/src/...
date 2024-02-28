@@ -1,0 +1,5 @@
+powerboard64: powerboard_daemon64.c
+	gcc -o powerboard64 powerboard_daemon64.c
+clean:
+	rm -f powerboard64
+

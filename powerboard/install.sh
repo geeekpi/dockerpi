@@ -1,19 +1,23 @@
 #!/bin/bash
 
-if [ $(id -u) -ne 0 ]; then #使用root权限
+# check if the user have permission to execute the shell script.
+if [ $(id -u) -ne 0 ]; then
   printf "Script must be run as root. Try 'sudo raspi-config'\n"
   exit 1
 fi
 
-#开启I2C外设
-if grep -q "^dtparam=i2c_arm=off" /boot/config.txt; then
-	sed -i "s|^dtparam=i2c_arm=off|dtparam=i2c_arm=on|" /boot/config.txt &> /dev/null
-elif grep -q "^#dtparam=i2c_arm=on" /boot/config.txt; then
-	sed -i "s|^#dtparam=i2c_arm=on|dtparam=i2c_arm=on|" /boot/config.txt &> /dev/null
+# check if the i2c function has been enabled. 
+if grep -q "^dtparam=i2c_arm=off" /boot/firmware/config.txt; then
+	sudo sed -i "s|^dtparam=i2c_arm=off|dtparam=i2c_arm=on|" /boot/firmware/config.txt &> /dev/null
+elif grep -q "^#dtparam=i2c_arm=on" /boot/firmware/config.txt; then
+	sudo sed -i "s|^#dtparam=i2c_arm=on|dtparam=i2c_arm=on|" /boot/firmware/config.txt &> /dev/null
 else
-	echo "dtparam=i2c_arm=on" | sudo tee -a /boot/config.txt &> /dev/null
+	echo "dtparam=i2c_arm=on" | sudo tee -a /boot/firmware/config.txt &> /dev/null
 fi
 
+
+# for 32bit or old system
+#
 if ! [ -e /etc/modprobe.d/raspi-blacklist.conf ]; then
 touch /etc/modprobe.d/raspi-blacklist.conf
 fi
@@ -25,15 +29,26 @@ fi
 dtparam i2c_arm=on
 modprobe i2c-dev
 
-wget -O /etc/systemd/system/powerboard_daemon.service https://github.com/geeekpi/dockerpi/raw/master/powerboard/powerboard_daemon.service
-wget -O /usr/sbin/powerboard_daemon https://github.com/geeekpi/dockerpi/raw/master/powerboard/powerboard_daemon
+# check the model of Raspberry Pi.
+model=`cat /proc/cpuinfo | awk -F: '{print $NF}' | awk '{print $3}'`
+
+if [[ $model -eq 5 ]]; then
+	wget -O /etc/systemd/system/powerboard64.service https://github.com/geeekpi/dockerpi/raw/master/powerboard/RPi5/64bit/powerboard64.service
+fi
+
+arch=`uname -m` 
+if [[ $arch == 'aarch64' ]]; then
+	wget -O /usr/sbin/powerboard64 https://github.com/geeekpi/dockerpi/raw/master/powerboard/RPI5/64bit/powerboard64
+fi
+
 
 
 chmod 755 /etc/systemd/system/powerboard_daemon.service
-chmod 755 /usr/sbin/powerboard_daemon
+# chmod 755 /usr/sbin/powerboard
 
 chown root:root /etc/systemd/system/powerboard_daemon.service
-chown root:root /usr/sbin/powerboard_daemon
+# chown root:root /usr/sbin/powerboard_daemon
 
-systemctl enable powerboard_daemon 
-systemctl start powerboard_daemon &
+systemctl daemon-reload
+systemctl enable powerboard64
+systemctl start powerboard64 &
