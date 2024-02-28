@@ -18,37 +18,76 @@ fi
 
 # for 32bit or old system
 #
-if ! [ -e /etc/modprobe.d/raspi-blacklist.conf ]; then
-touch /etc/modprobe.d/raspi-blacklist.conf
-fi
-sed /etc/modprobe.d/raspi-blacklist.conf -i -e "s/^\(blacklist[[:space:]]*i2c[-_]bcm2708\)/#\1/"
-sed /etc/modules -i -e "s/^#[[:space:]]*\(i2c[-_]dev\)/\1/"
-if ! grep -q "^i2c[-_]dev" /etc/modules; then
-sh -c "echo i2c-dev >> /etc/modules"
-fi
-dtparam i2c_arm=on
-modprobe i2c-dev
+#if ! [ -e /etc/modprobe.d/raspi-blacklist.conf ]; then
+#touch /etc/modprobe.d/raspi-blacklist.conf
+#fi
+#sed /etc/modprobe.d/raspi-blacklist.conf -i -e "s/^\(blacklist[[:space:]]*i2c[-_]bcm2708\)/#\1/"
+#sed /etc/modules -i -e "s/^#[[:space:]]*\(i2c[-_]dev\)/\1/"
+#if ! grep -q "^i2c[-_]dev" /etc/modules; then
+#sh -c "echo i2c-dev >> /etc/modules"
+#fi
+#dtparam i2c_arm=on
+#modprobe i2c-dev
 
 # check the model of Raspberry Pi.
-model=`cat /proc/cpuinfo | awk -F: '{print $NF}' | awk '{print $3}'`
-
-if [[ $model -eq 5 ]]; then
-	wget -O /etc/systemd/system/powerboard64.service https://github.com/geeekpi/dockerpi/raw/master/powerboard/RPi5/64bit/powerboard64.service
-fi
+model=`cat /proc/cpuinfo | grep Model | awk -F: '{print $NF}' | awk '{print $3}'`
 
 arch=`uname -m` 
-if [[ $arch == 'aarch64' ]]; then
-	wget -O /usr/sbin/powerboard64 https://github.com/geeekpi/dockerpi/raw/master/powerboard/RPI5/64bit/powerboard64
+
+# for Raspberry pi 5 and 64bit OS.
+if [[ $model -eq 5 && $arch == 'aarch64' ]]; then
+	cp -Rvf ./RPi5/64bit/powerboard64.service /etc/systemd/system/
+	cp -Rvf ./RPi5/64bit/powerboard64 /usr/sbin/powerboard64 
+	chmod 755 /etc/systemd/system/powerboard64.service
+	chmod 755 /usr/sbin/powerboard64
+	chown root:root /etc/systemd/system/powerboard64.service
+	chown root:root /usr/sbin/powerboard64
+	systemctl daemon-reload
+	systemctl enable powerboard64.service
+	systemctl start powerboard64.service &
 fi
 
 
+# for Raspberry pi 4B and 64bit OS.
+if [[ $model -eq 4 && $arch == 'aarch64' ]]; then
+	cp -Rvf ./RPi4B/64bit/powerboard64.service /etc/systemd/system/
+	cp -Rvf ./RPi4B/64bit/powerboard64 /usr/sbin/powerboard64 
+	chmod 755 /etc/systemd/system/powerboard64.service
+	chmod 755 /usr/sbin/powerboard64
+	chown root:root /etc/systemd/system/powerboard64.service
+	chown root:root /usr/sbin/powerboard64
+	systemctl daemon-reload
+	systemctl enable powerboard64.service
+	systemctl start powerboard64.service &
+fi
 
-chmod 755 /etc/systemd/system/powerboard_daemon.service
-# chmod 755 /usr/sbin/powerboard
+# for Raspberry pi 5 and 32bit OS.
+if [[ $model -eq 5 && $arch == 'aarch' ]]; then
+	cp -Rvf ./RPi5/32bit/powerboard32.service /etc/systemd/system/
+	cp -Rvf ./RPi5/32bit/powerboard32 /usr/sbin/powerboard32
+	chmod 755 /etc/systemd/system/powerboard32.service
+	chmod 755 /usr/sbin/powerboard32
+	chown root:root /etc/systemd/system/powerboard32.service
+	chown root:root /usr/sbin/powerboard32
+	systemctl daemon-reload
+	systemctl enable powerboard32.service
+	systemctl start powerboard32.service &
+fi
 
-chown root:root /etc/systemd/system/powerboard_daemon.service
-# chown root:root /usr/sbin/powerboard_daemon
+# for Raspberry pi 4 and 32bit OS.
+if [[ $model -eq 4 && $arch == 'aarch' ]]; then
+	cp -Rvf ./RPi4B/32bit/powerboard32.service /etc/systemd/system/
+	cp -Rvf ./RPi4B/32bit/powerboard32 /usr/sbin/powerboard32
+	chmod 755 /etc/systemd/system/powerboard32.service
+	chmod 755 /usr/sbin/powerboard32
+	chown root:root /etc/systemd/system/powerboard32.service
+	chown root:root /usr/sbin/powerboard32
+	systemctl daemon-reload
+	systemctl enable powerboard32.service
+	systemctl start powerboard32.service &
+fi
 
-systemctl daemon-reload
-systemctl enable powerboard64
-systemctl start powerboard64 &
+echo -e "\e[32;40mInstallation has completed successfully!\e[0m"
+echo -e "\e[32;40mSystem will reboot in 5 seconds!!!\e[0m"
+sleep 5
+sync && reboot 

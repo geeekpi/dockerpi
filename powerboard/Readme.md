@@ -18,4 +18,23 @@ Please make sure the blue color LED has been light up for a while, it means that
 * Click Power button to initializing shutdown processure. 
 If the operating system has been shutdown properly after clicking the power button once. it means that the driver has been installed properly. 
 otherwise, you need to reinstall the driver again. 
+## How to compile the binary file by yourself.
+* Just navigate to location `src` in repository and just execute `make` will compile the latest binary file according to your current system compiler.
+* For example:
+* For 64bit 
+```bash
+cd dockerpi/powerboard/src/64bit
+make 
+```
+
+* For 32bit 
+```bash
+cd dockerpi/powerboard/src/32bit
+make 
+```
+## How to clean up the compile files.
+```bash
+make clean
+```
+
 
